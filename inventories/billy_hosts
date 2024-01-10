@@ -1,0 +1,6 @@
+[all]
+srv1 ansible_host=billyb@pc828.emulab.net
+srv2 ansible_host=billyb@pc832.emulab.net
+srv3 ansible_host=billyb@pc824.emulab.net
+srv4 ansible_host=billyb@pc825.emulab.net
+srv5 ansible_host=billyb@pc836.emulab.net

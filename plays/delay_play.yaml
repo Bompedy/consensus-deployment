@@ -1,0 +1,61 @@
+- name: Run commands inside a screen
+  hosts: all
+  gather_facts: true
+
+  vars:
+    screen: delays
+    script: /home/ubuntu/ansible/scripts/test.sh
+
+
+  tasks:
+    - name: Extract script name
+      set_fact:
+        remote_script: "{{ script | basename }}"
+
+    - name: Current user
+      command: whoami
+      register: ssh_user
+
+    - name: Print User
+      debug:
+        var: ssh_user
+
+        #    - name: Stop scripts port
+        #become: true
+        #become_method: sudo
+        #shell: "lsof -ti :12380 | xargs kill-9"
+        #ignore_errors: yes
+
+        #- name: Stop script before
+        #become: true
+        #become_method: sudo
+        #shell: "pkill -f 'update.sh'"
+        #ignore_errors: yes
+
+
+    - name: Check if the screen session exists
+      shell: "screen -ls | grep -q '{{ screen }}'"
+      become_user: "{{ ssh_user.stdout }}"
+      become_method: sudo
+      ignore_errors: yes
+      register: screen_session_check
+
+    - name: Create or attach to a screen session
+      shell: |
+        if [ "{{ screen_session_check.rc }}" -ne 0 ]; then
+          screen -S {{ screen }} -d -m
+        fi
+      become_user: "{{ ssh_user.stdout }}"
+      become_method: sudo
+
+    - name: Copy the shell script to the remote server
+      copy:
+        src: "{{ script }}"
+        dest: "/users/{{ ssh_user.stdout }}/{{ remote_script }}"
+        mode: '0755'  # Adjust the permissions as needed
+        force: true
+
+    - name: Run commands inside the screen session
+      shell: "screen -S {{ screen }} -p 0 -X stuff 'sudo sh /users/{{ ssh_user.stdout }}/{{ remote_script }}\n'"
+      become_user: "{{ ssh_user.stdout }}"
+      become_method: sudo
