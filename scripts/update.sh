@@ -1,12 +1,10 @@
 #!/bin/bash
 
-cd /local/etcd
-cd .. & git clone https://github.com/Bompedy/RS-Paxos.git
-
 git config --global --add safe.directory /local/etcd/ETCD
 git config --global --add safe.directory /local/etcd/PineappleGo
 git config --global --add safe.directory /local/etcd/RabiaGo
 git config --global --add safe.directory /local/etcd/RS-Paxos
+git config --global --add safe.directory /local/etcd/Raft
 
 cd ETCD
 cd ../RS-Paxos || exit
